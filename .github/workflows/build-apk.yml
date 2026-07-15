@@ -20,7 +20,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Install dependencies
         run: npm install
@@ -34,13 +34,22 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x android/gradlew
 
-      - name: Build APK with debug
+      - name: Build APK
         run: |
           cd android
-          ./gradlew assembleDebug --stacktrace 2>&1 | tail -100
+          ./gradlew assembleDebug --stacktrace
+
+      - name: Find and Upload APK
+        if: always()
+        run: |
+          echo "Searching for APK files..."
+          find android -name "*.apk" -type f 2>/dev/null || echo "No APK files found in android/"
+          find . -name "*.apk" -type f 2>/dev/null || echo "No APK files found anywhere"
 
       - name: Upload APK
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: freeapp-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          path: |
+            **/*.apk
