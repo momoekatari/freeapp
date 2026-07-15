@@ -24,32 +24,22 @@ jobs:
 
       - name: Setup Android SDK
         run: |
-          echo "y" | $ANDROID_HOME/tools/bin/sdkmanager --install 'build-tools;35.0.0' 'platforms;android-35' 2>&1 | tail -3
-          echo "y" | $ANDROID_HOME/tools/bin/sdkmanager --licenses 2>&1 | tail -3 || true
+          $ANDROID_HOME/tools/bin/sdkmanager --install 'build-tools;35.0.0' 'platforms;android-35' 2>&1 | tail -3 || true
+          $ANDROID_HOME/tools/bin/sdkmanager --licenses 2>&1 | tail -3 || true
 
       - name: Install dependencies
-        run: npm install
+        run: npm install 2>&1
 
       - name: Sync Capacitor
-        run: npx cap sync android
+        run: npx cap sync android 2>&1
 
       - name: Make gradlew executable
         run: chmod +x android/gradlew
 
-      - name: Build APK
+      - name: Build APK (full output)
         run: |
-          cd android && ./gradlew assembleDebug
-
-      - name: Locate APK
-        if: always()
-        run: |
-          echo "=== outputs dir ==="
-          ls -la android/app/build/outputs/ 2>/dev/null || echo "no outputs dir"
-          ls -la android/app/build/outputs/apk/ 2>/dev/null || echo "no apk dir"
-          ls -laR android/app/build/outputs/apk/debug/ 2>/dev/null || echo "no debug dir"
-          echo "=== search apk ==="
-          find android -name "*.apk" -type f 2>/dev/null || echo "not found in android"
-          find . -name "*.apk" -type f 2>/dev/null || echo "not found in ."
+          cd android
+          ./gradlew assembleDebug --stacktrace 2>&1
 
       - name: Upload APK
         if: always()
