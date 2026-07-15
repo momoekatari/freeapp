@@ -24,8 +24,8 @@ jobs:
 
       - name: Setup Android SDK
         run: |
-          echo "y" | $ANDROID_HOME/tools/bin/sdkmanager --install 'build-tools;35.0.0' 'platforms;android-35' 'cmdline-tools;latest' 2>&1 | tail -5
-          echo "y" | $ANDROID_HOME/tools/bin/sdkmanager --licenses 2>&1 | tail -5 || true
+          echo "y" | $ANDROID_HOME/tools/bin/sdkmanager --install 'build-tools;35.0.0' 'platforms;android-35' 2>&1 | tail -3
+          echo "y" | $ANDROID_HOME/tools/bin/sdkmanager --licenses 2>&1 | tail -3 || true
 
       - name: Install dependencies
         run: npm install
@@ -39,13 +39,16 @@ jobs:
       - name: Build APK
         run: |
           cd android
-          ./gradlew assembleDebug --stacktrace 2>&1 | tail -50
+          ./gradlew assembleDebug
 
-      - name: Find APK
+      - name: Locate APK
         if: always()
         run: |
-          find /home -name "*.apk" -type f 2>/dev/null || echo "no apk"
-          find /github -name "*.apk" -type f 2>/dev/null || echo "no apk in github"
+          echo "=== Search APK ==="
+          find / -name "*.apk" -type f 2>/dev/null || echo "NOT FOUND"
+          echo "=== Check android/build ==="
+          ls -la android/app/build/outputs/ 2>/dev/null || echo "no outputs dir"
+          ls -la android/app/build/outputs/apk/ 2>/dev/null || echo "no apk dir"
 
       - name: Upload APK
         if: always()
