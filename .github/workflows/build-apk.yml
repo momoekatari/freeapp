@@ -38,17 +38,18 @@ jobs:
 
       - name: Build APK
         run: |
-          cd android
-          ./gradlew assembleDebug
+          cd android && ./gradlew assembleDebug
 
       - name: Locate APK
         if: always()
         run: |
-          echo "=== Search APK ==="
-          find / -name "*.apk" -type f 2>/dev/null || echo "NOT FOUND"
-          echo "=== Check android/build ==="
+          echo "=== outputs dir ==="
           ls -la android/app/build/outputs/ 2>/dev/null || echo "no outputs dir"
           ls -la android/app/build/outputs/apk/ 2>/dev/null || echo "no apk dir"
+          ls -laR android/app/build/outputs/apk/debug/ 2>/dev/null || echo "no debug dir"
+          echo "=== search apk ==="
+          find android -name "*.apk" -type f 2>/dev/null || echo "not found in android"
+          find . -name "*.apk" -type f 2>/dev/null || echo "not found in ."
 
       - name: Upload APK
         if: always()
